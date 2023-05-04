@@ -35,7 +35,7 @@ jobs:
           export GIT_TAG="0.0.$(git rev-list --count HEAD)1"
 
           echo "TAG ->> $GIT_TAG"
-
+          git fetch origin
           git checkout -b release origin/release
           git merge master
           # build
