@@ -16,7 +16,8 @@ export declare class WalletConnect {
     update(): void;
     privateWallet(): Promise<void>;
     web3Provider(): Promise<void>;
-    static connectMetaMask(ethereum: any): Promise<WalletConnect>;
+    static connectMetaMask(): Promise<WalletConnect>;
+    static getEthereum(): any;
     static connectWalletconnect(): Promise<WalletConnect>;
     /**
      * 链接钱包
