@@ -5,3 +5,4 @@ export * from './BasicException';
 export * from './ConnectInfo';
 export * from './WalletConnect';
 export * from 'ethers';
+export * from 'bignumber.js';
