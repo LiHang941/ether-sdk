@@ -36,7 +36,7 @@ jobs:
 
           echo "TAG ->> $GIT_TAG"
 
-          git checkout -b release
+          git checkout release
           git merge master
           
           # build
@@ -54,3 +54,4 @@ jobs:
           git commit -m "${GIT_COMMIT_MESSAGE}"
           git tag -a ${GIT_TAG} -m "${GIT_COMMIT_MESSAGE}"
           git push --tags
+          git push
