@@ -1,0 +1,50 @@
+name: Build SDK PROD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: Ubuntu-20.04
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: setup nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: build
+        run: |
+
+          export GIT_COMMIT_USER_NAME=`git show -s --format=%an`
+          export GIT_COMMIT_USER_EMAIL=`git show -s --format=%ae`
+
+          git config user.email "${GIT_COMMIT_USER_EMAIL}"
+          git config user.name "${GIT_COMMIT_USER_NAME}"
+
+          export GIT_COMMIT_MESSAGE=`git show -s --format=%s`
+          export GIT_TAG="0.0.$(git rev-list --count HEAD)1"
+
+          echo "TAG ->> $GIT_TAG"
+
+          git checkout -b build@${GIT_TAG}
+
+          # build
+          GIT_SSH_COMMAND="ssh"
+          npm install
+          npm run build
+
+          # upload
+          cat package.json | jq --arg tag ${GIT_TAG}  'setpath(["version"];$tag)' > "package.json.bak"
+          mv package.json.bak package.json
+
+          git add lib
+          git add lib.umd
+          git add package.json
+          git commit -m "${GIT_COMMIT_MESSAGE}"
+          git tag -a ${GIT_TAG} -m "${GIT_COMMIT_MESSAGE}"
+          git push --tags
