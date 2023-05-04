@@ -12,6 +12,7 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@v2
         with:
+          ssh-key: ${{ secrets.JS_SDK_SSH_KEY }}
           fetch-depth: 0
       - uses: webfactory/ssh-agent@v0.5.4
         with:
