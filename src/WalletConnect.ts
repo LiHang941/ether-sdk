@@ -1,8 +1,8 @@
-import { ConnectInfo } from './ConnectInfo';
-import { Trace } from './service';
-import { ethers, providers, Wallet } from 'ethers';
-import { getCurrentAddressInfo } from './Constant';
-import { BasicException } from './BasicException';
+import {ConnectInfo} from './ConnectInfo';
+import {Trace} from './service';
+import {providers, Wallet} from 'ethers';
+import {getCurrentAddressInfo} from './Constant';
+import {BasicException} from './BasicException';
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export class PrivateWallet {
@@ -14,9 +14,9 @@ export class PrivateWallet {
 export type WalletType = PrivateWallet | providers.Web3Provider | { provider: any };
 
 
-let currentConnect:ConnectInfo = null;
+let currentConnect: ConnectInfo = null;
 
-export const getCurrentConnect = ():ConnectInfo =>{
+export const getCurrentConnect = (): ConnectInfo => {
   return currentConnect;
 }
 
@@ -84,29 +84,42 @@ export class WalletConnect {
     this.update();
   }
 
-  static async connectMetaMask(ethereum): Promise<WalletConnect> {
-    const provider = new providers.Web3Provider(ethereum, 'any');
+  static async connectMetaMask(): Promise<WalletConnect> {
+    const _ethereum = WalletConnect.getEthereum();
+    if (!_ethereum) {
+      throw new BasicException("Check your wallet!");
+    }
+    await _ethereum.enable()
+    const provider = new providers.Web3Provider(_ethereum, 'any');
     return new WalletConnect(provider);
   }
-   static async connectWalletconnect(): Promise<WalletConnect> {
+
+  static getEthereum(): any {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return window.ethereum;
+  }
+
+
+  static async connectWalletconnect(): Promise<WalletConnect> {
     const provider = new WalletConnectProvider({
       rpc: {
-          1: 'https://mainnet.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-          42: 'https://kovan.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-          4: 'https://rinkeby.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-          56: 'https://bsc-dataseed.binance.org/',
-          256: 'https://http-testnet.hecochain.com',
-          128: 'https://http-mainnet-node.huobichain.com',
-          97: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
-          66: 'https://exchainrpc.okex.org',
-          65: 'https://exchaintestrpc.okex.org',
-          80001: 'https://naughty-blackwell:waffle-sprawl-math-used-ripple-snarl@nd-311-035-380.p2pify.com',
-          42161: 'https://arb1.arbitrum.io/rpc',
-          137: 'https://polygon-rpc.com/',
-          10: 'https://mainnet.optimism.io',
-          250: 'https://rpc.ftm.tools/',
-          421611: 'https://rinkeby.arbitrum.io/rpc',
-        },
+        1: 'https://mainnet.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
+        42: 'https://kovan.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
+        4: 'https://rinkeby.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
+        56: 'https://bsc-dataseed.binance.org/',
+        256: 'https://http-testnet.hecochain.com',
+        128: 'https://http-mainnet-node.huobichain.com',
+        97: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
+        66: 'https://exchainrpc.okex.org',
+        65: 'https://exchaintestrpc.okex.org',
+        80001: 'https://naughty-blackwell:waffle-sprawl-math-used-ripple-snarl@nd-311-035-380.p2pify.com',
+        42161: 'https://arb1.arbitrum.io/rpc',
+        137: 'https://polygon-rpc.com/',
+        10: 'https://mainnet.optimism.io',
+        250: 'https://rpc.ftm.tools/',
+        421611: 'https://rinkeby.arbitrum.io/rpc',
+      },
       qrcodeModalOptions: {
         mobileLinks: [
           'mathwallet',
@@ -163,7 +176,7 @@ export class ConnectManager {
    */
   static async connect(wallet: WalletConnect): Promise<ConnectInfo> {
     ConnectManager.walletConnect = wallet
-    ConnectManager.connectInfo =await wallet.connect();
+    ConnectManager.connectInfo = await wallet.connect();
     return
   }
 
@@ -172,11 +185,11 @@ export class ConnectManager {
    */
   static async disConnect() {
 
-    if ( ConnectManager.walletConnect){
+    if (ConnectManager.walletConnect) {
       ConnectManager.walletConnect.disConnect()
-      ConnectManager.walletConnect= null
+      ConnectManager.walletConnect = null
     }
-    if ( ConnectManager.connectInfo){
+    if (ConnectManager.connectInfo) {
       ConnectManager.connectInfo = null;
     }
   }
