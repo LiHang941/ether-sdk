@@ -36,9 +36,8 @@ jobs:
 
           echo "TAG ->> $GIT_TAG"
 
-          git branch -D release
-          git checkout -b release
-          
+          git checkout -b release origin/release
+          git merge master
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
