@@ -24,3 +24,20 @@ export declare class WalletConnect {
      */
     connect(): Promise<ConnectInfo>;
 }
+export declare class ConnectManager {
+    private static connectInfo;
+    private static walletConnect;
+    /**
+     * 初始化
+     * @param wallet
+     */
+    static connect(wallet: WalletConnect): Promise<ConnectInfo>;
+    /**
+     * 断开连接
+     */
+    static disConnect(): Promise<void>;
+    /**
+     * 获取连接
+     */
+    static getConnect(): ConnectInfo;
+}
