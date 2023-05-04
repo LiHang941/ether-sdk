@@ -36,8 +36,9 @@ jobs:
 
           echo "TAG ->> $GIT_TAG"
 
-          git checkout -b build@${GIT_TAG}
-
+          git checkout -b release
+          git merge master
+          
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
