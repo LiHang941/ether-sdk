@@ -152,3 +152,44 @@ export class WalletConnect {
     }
   }
 }
+
+export class ConnectManager {
+  private static connectInfo: ConnectInfo;
+  private static walletConnect: WalletConnect;
+
+  /**
+   * 初始化
+   * @param wallet
+   */
+  static async connect(wallet: WalletConnect): Promise<ConnectInfo> {
+    ConnectManager.walletConnect = wallet
+    ConnectManager.connectInfo =await wallet.connect();
+    return
+  }
+
+  /**
+   * 断开连接
+   */
+  static async disConnect() {
+
+    if ( ConnectManager.walletConnect){
+      ConnectManager.walletConnect.disConnect()
+      ConnectManager.walletConnect= null
+    }
+    if ( ConnectManager.connectInfo){
+      ConnectManager.connectInfo = null;
+    }
+  }
+
+  /**
+   * 获取连接
+   */
+  static getConnect() {
+    if (ConnectManager.connectInfo) {
+      if (ConnectManager.connectInfo.status) {
+        return ConnectManager.connectInfo;
+      }
+    }
+    throw new Error("Wallet not connected");
+  }
+}
