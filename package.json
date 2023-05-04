@@ -1,0 +1,65 @@
+{
+  "name": "ether-sdk",
+  "version": "0.0.1",
+  "description": "ether-sdk",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "repository": "https://github.com/LiHang941/ether-sdk",
+  "author": "ether-sdk",
+  "scripts": {
+    "test": "mocha test/**.spec.ts",
+    "clean": "rimraf dist lib lib.esm lib.umd cache artifacts out",
+    "build": "npm run  clean && npm run build:cjs && npm run build:umd",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:umd": "webpack",
+    "format": "prettier --write \"(src|test)/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json --fix",
+    "doc": "typedoc --excludeExternals --excludePrivate --out docs ./src/**",
+    "build:contracts": "rm -rf src/abi/*.sol && npx hardhat compile && cp -r artifacts/contracts/* src/abi/ && rm -rf src/abi/*/*.dbg.json && sh abi-handler.sh"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.15.8",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^11.12.1",
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
+    "babelify": "^10.0.0",
+    "chai": "^4.2.0",
+    "hardhat": "^2.6.5",
+    "mocha": "^8.1.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^2.6.3",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.11.0",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typedoc": "^0.22.10",
+    "typescript": "^4.5.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "dependencies": {
+    "axios": "^0.23.0",
+    "bignumber.js": "^9.0.1",
+    "ethers": "^5.6.4",
+    "lodash": "^4.17.21",
+    "@walletconnect/web3-provider": "^1.7.8"
+  },
+  "mocha": {
+    "timeout": 120000,
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ],
+    "ui": "bdd"
+  }
+}
