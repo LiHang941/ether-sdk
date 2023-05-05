@@ -177,7 +177,7 @@ export class ConnectManager {
   static async connect(wallet: WalletConnect): Promise<ConnectInfo> {
     ConnectManager.walletConnect = wallet
     ConnectManager.connectInfo = await wallet.connect();
-    return
+    return ConnectManager.connectInfo
   }
 
   /**
