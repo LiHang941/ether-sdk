@@ -24,6 +24,7 @@ export class WalletConnect {
   // 钱包链接名称
   wallet: WalletType;
   connectInfo: ConnectInfo;
+  provider: any;
 
   constructor(walletName: WalletType) {
     this.wallet = walletName;
@@ -91,7 +92,9 @@ export class WalletConnect {
     }
     await _ethereum.enable()
     const provider = new providers.Web3Provider(_ethereum, 'any');
-    return new WalletConnect(provider);
+    const walletConnect = new WalletConnect(provider);
+    walletConnect.provider = _ethereum;
+    return walletConnect;
   }
 
   static getEthereum(): any {
@@ -137,7 +140,10 @@ export class WalletConnect {
     await provider.enable();
     // @ts-ignore
     const walletConnectProvider = new providers.Web3Provider(provider, 'any');
-    return new WalletConnect(walletConnectProvider);
+    const walletConnect = new WalletConnect(walletConnectProvider);
+    walletConnect.provider = walletConnectProvider;
+    return walletConnect;
+
   }
 
   /**
