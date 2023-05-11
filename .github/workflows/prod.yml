@@ -45,15 +45,15 @@ jobs:
           npm run build
 
 
-          mv ../temp_lib/yarn.lock yarn.lock
+          mv ../temp_lib/yarn.lock ./
           mv lib ../temp_lib/
           mv lib.umd ../temp_lib/
 
           git fetch origin
           git checkout -b release origin/release
 
-          mv ../temp_lib/lib.umd lib 
-          mv ../temp_lib/lib.umd lib.umd 
+          mv ../temp_lib/lib.umd ./
+          mv ../temp_lib/lib.umd ./
           
           
           rm -rf src
