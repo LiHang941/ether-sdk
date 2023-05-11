@@ -36,13 +36,16 @@ jobs:
 
           echo "TAG ->> $GIT_TAG"
           
+          mkdir ../temp_lib/
+          cp -r yarn.lock ../temp_lib/
+          
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
           npm run build
 
 
-          mkdir ../temp_lib/
+          
           mv lib ../temp_lib/
           mv lib.umd ../temp_lib/
 
@@ -51,6 +54,7 @@ jobs:
 
           mv ../temp_lib/lib.umd lib 
           mv ../temp_lib/lib.umd lib.umd 
+          mv ../temp_lib/yarn.lock yarn.lock
           
           rm -rf src
           rm -rf test
