@@ -35,13 +35,22 @@ jobs:
           export GIT_TAG="0.0.$(git rev-list --count HEAD)1"
 
           echo "TAG ->> $GIT_TAG"
-          git fetch origin
-          git checkout -b release origin/release
-          git merge master
+          
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
           npm run build
+
+
+          mkdir ../temp_lib/
+          mv lib ../temp_lib/
+          mv lib.umd ../temp_lib/
+
+          git fetch origin
+          git checkout -b release origin/release
+
+          mv ../temp_lib/lib.umd lib 
+          mv ../temp_lib/lib.umd lib.umd 
           
           rm -rf src
           rm -rf test
