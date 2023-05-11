@@ -1,6 +1,6 @@
 {
   "name": "ether-sdk",
-  "version": "0.0.161",
+  "version": "0.0.171",
   "description": "ether-sdk",
   "main": "lib/index.js",
   "module": "lib/index.js",

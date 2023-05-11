@@ -28,6 +28,10 @@ export declare class WalletConnect {
 export declare class ConnectManager {
     private static connectInfo;
     private static walletConnect;
+    static chainMap: {
+        rinkeby: string;
+        mainnet: string;
+    };
     /**
      * 初始化
      * @param wallet
@@ -41,4 +45,5 @@ export declare class ConnectManager {
      * 获取连接
      */
     static getConnect(): ConnectInfo;
+    static addMetamaskChain(chainName: string): void;
 }
