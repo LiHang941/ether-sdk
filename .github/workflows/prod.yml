@@ -52,8 +52,7 @@ jobs:
           git fetch origin
           git checkout -b release origin/release
 
-          mv ../temp_lib/lib ./
-          mv ../temp_lib/lib.umd ./
+          mv ../temp_lib/* ./
           
           
           rm -rf src
