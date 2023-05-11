@@ -11,6 +11,7 @@ export declare const getCurrentConnect: () => ConnectInfo;
 export declare class WalletConnect {
     wallet: WalletType;
     connectInfo: ConnectInfo;
+    provider: any;
     constructor(walletName: WalletType);
     disConnect(): void;
     update(): void;
