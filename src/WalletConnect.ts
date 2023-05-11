@@ -170,6 +170,11 @@ export class ConnectManager {
   private static connectInfo: ConnectInfo;
   private static walletConnect: WalletConnect;
 
+  public static chainMap = {
+    rinkeby: '0x4',
+    mainnet: '0x1',
+  };
+
   /**
    * 初始化
    * @param wallet
@@ -205,4 +210,34 @@ export class ConnectManager {
     }
     throw new Error("Wallet not connected");
   }
+
+
+  static addMetamaskChain(chainName: string) {
+    // @ts-ignore
+    const _ethereum = WalletConnect.getEthereum();
+    if (!_ethereum) {
+      return;
+    }
+
+    const data = ConnectManager.chainMap[chainName];
+    if (!data) {
+      return;
+    }
+
+    if (typeof data === 'string') {
+      _ethereum
+        .request({
+          method: 'wallet_switchEthereumChain',
+          params: [
+            {
+              chainId: data,
+            },
+          ],
+        })
+        .catch();
+      return;
+    }
+    _ethereum.request({ method: 'wallet_addEthereumChain', params: data }).catch();
+  }
+
 }
