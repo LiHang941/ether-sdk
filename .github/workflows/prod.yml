@@ -42,14 +42,17 @@ jobs:
           GIT_SSH_COMMAND="ssh"
           npm install
           npm run build
+          
+          rm -rf src
+          rm -rf test
+          
 
           # upload
           cat package.json | jq --arg tag ${GIT_TAG}  'setpath(["version"];$tag)' > "package.json.bak"
           mv package.json.bak package.json
-
-          git add lib
-          git add lib.umd
-          git add package.json
+          
+          git add .
+          
           git commit -m "${GIT_COMMIT_MESSAGE}"
           git tag -a ${GIT_TAG} -m "${GIT_COMMIT_MESSAGE}"
           git push --tags
