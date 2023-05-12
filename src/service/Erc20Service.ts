@@ -22,8 +22,8 @@ export class Erc20Service extends BaseService {
     }
     const tokenIns = this.connectInfo.create(ERC20, address);
     const result = await this.connectInfo.multiCall().singleCall({
-      balance: tokenIns.erc20Instance.balanceOf(user),
-      decimals: tokenIns.erc20Instance.decimals(),
+      balance: tokenIns.mulContract.balanceOf(user),
+      decimals: tokenIns.mulContract.decimals(),
     });
 
     const decimal = Number(result.decimals);
@@ -59,9 +59,9 @@ export class Erc20Service extends BaseService {
   async getTokenInfo(address: string): Promise<{ name: string; symbol: string; decimal: number; address: string }> {
     const tokenIns = this.connectInfo.create(ERC20, address);
     const result = await this.connectInfo.multiCall().singleCall({
-      name: tokenIns.erc20Instance.name(),
-      symbol: tokenIns.erc20Instance.symbol(),
-      decimal: tokenIns.erc20Instance.decimals(),
+      name: tokenIns.mulContract.name(),
+      symbol: tokenIns.mulContract.symbol(),
+      decimal: tokenIns.mulContract.decimals(),
       address: address.toLowerCase(),
     });
     return {
@@ -83,9 +83,9 @@ export class Erc20Service extends BaseService {
       ...erc20AddressList.map((erc20Address) => {
         const tokenIns = this.connectInfo.create(ERC20, erc20Address);
         return {
-          name: tokenIns.erc20Instance.name(),
-          symbol: tokenIns.erc20Instance.symbol(),
-          decimals: tokenIns.erc20Instance.decimals(),
+          name: tokenIns.mulContract.name(),
+          symbol: tokenIns.mulContract.symbol(),
+          decimals: tokenIns.mulContract.decimals(),
           address: erc20Address.toLowerCase(),
         };
       }),
@@ -127,8 +127,8 @@ export class Erc20Service extends BaseService {
 
     const tokenIns = this.connectInfo.create(ERC20, tokenAddress);
     const result = await this.connectInfo.multiCall().singleCall({
-      allowance: tokenIns.erc20Instance.allowance(userAddress, exchangeAddress),
-      decimals: tokenIns.erc20Instance.decimals(),
+      allowance: tokenIns.mulContract.allowance(userAddress, exchangeAddress),
+      decimals: tokenIns.mulContract.decimals(),
     });
     const allowanceBalance = result.allowance;
     const decimal = Number(result.decimals);
@@ -182,14 +182,14 @@ export class Erc20Service extends BaseService {
         if (it === ETH_ADDRESS) {
           return {
             address: ETH_ADDRESS,
-            balance: multiCall.multicall2Instance.getEthBalance(user),
+            balance: multiCall.mulContract.getEthBalance(user),
             decimals: '18',
           };
         }
         return {
           address: it,
-          balance: tokenIns.erc20Instance.balanceOf(user),
-          decimals: tokenIns.erc20Instance.decimals(),
+          balance: tokenIns.mulContract.balanceOf(user),
+          decimals: tokenIns.mulContract.decimals(),
         };
       }),
     );

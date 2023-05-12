@@ -3,55 +3,50 @@ import { ConnectInfo } from '../../ConnectInfo';
 import { IERC20 } from '../../abi';
 import { TransactionEvent } from '../vo';
 import { CacheKey } from '../tool';
-import { Contract } from 'ethers';
-import { MulContract } from '../../mulcall';
+import {BaseAbi} from "./BaseAbi";
 
 @CacheKey('ERC20')
-export class ERC20 extends BaseService {
-  public erc20Instance: MulContract;
-  public erc20Contract: Contract;
+export class ERC20 extends BaseAbi {
 
   constructor(connectInfo: ConnectInfo, token: string) {
-    super(connectInfo);
-    this.erc20Instance = new MulContract(token, IERC20);
-    this.erc20Contract = new Contract(token, IERC20, connectInfo.getWalletOrProvider());
+    super(connectInfo,token,IERC20);
   }
 
   async allowance(owner: string, sender: string): Promise<string> {
-    return (await this.erc20Contract.allowance(owner, sender)).toString();
+    return (await this.contract.allowance(owner, sender)).toString();
   }
 
   async approve(spender: string, value: string): Promise<TransactionEvent> {
-    return await this.connectInfo.tx().sendContractTransaction(this.erc20Contract, 'approve', [spender, value], {});
+    return await this.connectInfo.tx().sendContractTransaction(this.contract, 'approve', [spender, value], {});
   }
 
   async transfer(to: string, value: string): Promise<TransactionEvent> {
-    return await this.connectInfo.tx().sendContractTransaction(this.erc20Contract, 'transfer', [to, value], {});
+    return await this.connectInfo.tx().sendContractTransaction(this.contract, 'transfer', [to, value], {});
   }
 
   async transferFrom(from: string, to: string, value: string): Promise<TransactionEvent> {
     return await this.connectInfo
       .tx()
-      .sendContractTransaction(this.erc20Contract, 'transferFrom', [from, to, value], {});
+      .sendContractTransaction(this.contract, 'transferFrom', [from, to, value], {});
   }
 
   async totalSupply(): Promise<string> {
-    return (await this.erc20Contract.totalSupply()).toString();
+    return (await this.contract.totalSupply()).toString();
   }
 
   async balanceOf(owner: string): Promise<string> {
-    return (await this.erc20Contract.balanceOf(owner)).toString();
+    return (await this.contract.balanceOf(owner)).toString();
   }
 
   async name(): Promise<string> {
-    return (await this.erc20Contract.name()).toString();
+    return (await this.contract.name()).toString();
   }
 
   async symbol(): Promise<string> {
-    return (await this.erc20Contract.symbol()).toString();
+    return (await this.contract.symbol()).toString();
   }
 
   async decimals(): Promise<number> {
-    return parseInt((await this.erc20Contract.decimals()).toString(), 10);
+    return parseInt((await this.contract.decimals()).toString(), 10);
   }
 }

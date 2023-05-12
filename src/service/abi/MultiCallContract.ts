@@ -5,21 +5,19 @@ import { Multicall2 } from '../../abi';
 
 import { ContractCall, MulContract, Provider } from '../../mulcall';
 import { fromPairs, toPairs } from 'lodash';
+import {BaseAbi} from "./BaseAbi";
 
 export interface ShapeWithLabel {
   [item: string]: ContractCall | string;
 }
 
 @CacheKey('MultiCallContract')
-export class MultiCallContract extends BaseService {
+export class MultiCallContract extends BaseAbi {
   public multiCallInstance: Provider;
-  public multicall2Instance: MulContract;
 
   constructor(connectInfo: ConnectInfo) {
-    super(connectInfo);
-    const address = this.connectInfo.addressInfo.multicall;
-    this.multicall2Instance = new MulContract(address, Multicall2);
-    this.multiCallInstance = new Provider(this.connectInfo.provider, address);
+    super(connectInfo,connectInfo.addressInfo.multicall,Multicall2);
+    this.multiCallInstance = new Provider(this.connectInfo.provider, this.connectInfo.addressInfo.multicall);
   }
 
   async singleCall(shapeWithLabel: ShapeWithLabel): Promise<any> {
