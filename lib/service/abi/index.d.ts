@@ -3,3 +3,4 @@
  */
 export * from './ERC20';
 export * from './MultiCallContract';
+export * from './BaseAbi';
