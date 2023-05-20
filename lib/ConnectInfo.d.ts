@@ -56,6 +56,7 @@ export declare class ConnectInfo {
     set addressInfo(value: AddressInfo);
     set wallet(value: Signer);
     getWalletOrProvider(): Signer | Provider;
+    getWallet(): Signer;
     getScan(): string;
     addToken(tokenAddress: any): Promise<boolean>;
 }
