@@ -148,6 +148,10 @@ export class ConnectInfo {
     return this._wallet || this._provider;
   }
 
+  getWallet(): Signer {
+    return this._wallet || this.provider.getSigner();
+  }
+
   getScan(): string {
     return this.addressInfo.scan;
   }
