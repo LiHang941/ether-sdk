@@ -4,6 +4,9 @@ import { Provider } from '@ethersproject/providers';
 import { Abi } from './abi';
 import { multicallAbi } from './abi/multicall';
 import { ContractCall } from './types';
+import chunk from 'lodash/chunk';
+
+export const CHUNK_SIZE = 255
 
 export async function all<T extends any[] = any[]>(
   calls: ContractCall[],
@@ -11,6 +14,9 @@ export async function all<T extends any[] = any[]>(
   provider: Provider,
 ): Promise<T> {
   const multicall = new Contract(multicallAddress, multicallAbi, provider);
+
+
+
   const callRequests = calls.map((call) => {
     const callData = Abi.encode(call.name, call.inputs, call.params);
     return {
@@ -18,7 +24,16 @@ export async function all<T extends any[] = any[]>(
       callData,
     };
   });
-  const response = await multicall.tryAggregate(false, callRequests);
+
+
+  const response = []
+  const callRequestsChuck = chunk(callRequests, CHUNK_SIZE)
+  for (const callChuck of callRequestsChuck) {
+    const result = await multicall.tryAggregate(false, callChuck, { gasLimit: 30000000 });
+    response.push(...result)
+  }
+
+
   const callCount = calls.length;
   const callResult = [] as T;
 
