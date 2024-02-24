@@ -27,6 +27,7 @@ export class WalletConnect {
   wallet: WalletType;
   connectInfo: ConnectInfo;
   provider: any;
+  disconnectCallBack: () => void = null;
 
   constructor(walletName: WalletType) {
     this.wallet = walletName;
@@ -37,6 +38,15 @@ export class WalletConnect {
   }
 
   disConnect() {
+
+    if (this.disconnectCallBack){
+      try {
+        this.disconnectCallBack()
+      }catch (e){
+        Trace.error(e)
+      }
+    }
+
     const connectInfo = this.connectInfo;
     connectInfo.status = false;
     connectInfo.msg = 'Check your wallet!';
@@ -130,8 +140,9 @@ export class WalletConnect {
       enableAnalytics: true // Optional - defaults to your Cloud configuration
     })
 
-    let walletProvider:Provider = modal.getWalletProvider();
-    if (!walletProvider){
+    const isConnected = modal.getIsConnected();
+    let walletProvider:Provider
+    if (!isConnected) {
       await modal.open()
       walletProvider = await new Promise<Provider>((resolve, reject) => {
         modal.subscribeProvider((newState) => {
@@ -141,10 +152,25 @@ export class WalletConnect {
           }
         })
       })
+    }else {
+       walletProvider = modal.getWalletProvider();
     }
+
+    if (modal.getState().selectedNetworkId !== mainnet.chainId){
+      await modal.switchNetwork(mainnet.chainId)
+    }
+
     const walletConnectProvider = new providers.Web3Provider(walletProvider, 'any')
+    const network = await walletConnectProvider.getNetwork();
+    if (network.chainId !== mainnet.chainId){
+
+    }
+
     const walletConnect = new WalletConnect(walletConnectProvider);
     walletConnect.provider = walletConnectProvider;
+    walletConnect.disconnectCallBack= ()=>{
+      modal.disconnect()
+    }
     return walletConnect;
   }
 
