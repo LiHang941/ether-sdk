@@ -3,7 +3,9 @@ import {Trace} from './service';
 import {providers, Wallet} from 'ethers';
 import {getCurrentAddressInfo} from './Constant';
 import {BasicException} from './BasicException';
-import WalletConnectProvider from "@walletconnect/web3-provider";
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5'
+import type { Provider } from '@web3modal/scaffold-utils/dist/types/exports/ethers';
+
 
 export class PrivateWallet {
   provider: providers.JsonRpcProvider;
@@ -104,46 +106,44 @@ export class WalletConnect {
   }
 
 
-  static async connectWalletconnect(): Promise<WalletConnect> {
-    const provider = new WalletConnectProvider({
-      rpc: {
-        1: 'https://mainnet.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-        42: 'https://kovan.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-        4: 'https://rinkeby.infura.io/v3/f6a9e5c4490849bb998a0c54718678f9',
-        56: 'https://bsc-dataseed.binance.org/',
-        256: 'https://http-testnet.hecochain.com',
-        128: 'https://http-mainnet-node.huobichain.com',
-        97: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
-        66: 'https://exchainrpc.okex.org',
-        65: 'https://exchaintestrpc.okex.org',
-        80001: 'https://naughty-blackwell:waffle-sprawl-math-used-ripple-snarl@nd-311-035-380.p2pify.com',
-        42161: 'https://arb1.arbitrum.io/rpc',
-        137: 'https://polygon-rpc.com/',
-        10: 'https://mainnet.optimism.io',
-        250: 'https://rpc.ftm.tools/',
-        421611: 'https://rinkeby.arbitrum.io/rpc',
-      },
-      qrcodeModalOptions: {
-        mobileLinks: [
-          'mathwallet',
-          'bitkeep',
-          'rainbow',
-          'metamask',
-          'argent',
-          'trust',
-          'imtoken',
-          'pillar',
-          'tokenpocket',
-        ],
-      },
-    });
-    await provider.enable();
-    // @ts-ignore
-    const walletConnectProvider = new providers.Web3Provider(provider, 'any');
+  static async connectWalletconnect(
+    metadata:{
+      name: string,
+      description: string,
+      url: string, // origin must match your domain & subdomain
+      icons: string[]
+    },
+    projectId: string,
+    mainnet: {
+      rpcUrl: string;
+      explorerUrl: string;
+      currency: string;
+      name: string;
+      chainId: number;
+    }
+  ): Promise<WalletConnect> {
+
+    const modal = createWeb3Modal({
+      ethersConfig: defaultConfig({ metadata }),
+      chains: [mainnet],
+      projectId,
+      enableAnalytics: true // Optional - defaults to your Cloud configuration
+    })
+
+    await modal.open()
+
+    const walletProvider:Provider = await new Promise<Provider>((resolve, reject) => {
+      modal.subscribeProvider((newState) => {
+        Trace.debug('walletConnectProvider', newState);
+        if (newState && newState.provider) {
+          resolve(newState.provider)
+        }
+      })
+    })
+    const walletConnectProvider = new providers.Web3Provider(walletProvider, 'any')
     const walletConnect = new WalletConnect(walletConnectProvider);
     walletConnect.provider = walletConnectProvider;
     return walletConnect;
-
   }
 
   /**
