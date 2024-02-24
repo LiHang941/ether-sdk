@@ -58,7 +58,6 @@ jobs:
           
           rm -rf src
           rm -rf test
-          
 
           # upload
           cat package.json | jq --arg tag ${GIT_TAG}  'setpath(["version"];$tag)' > "package.json.bak"
