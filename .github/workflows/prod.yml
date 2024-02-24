@@ -47,7 +47,6 @@ jobs:
 
           mv ../temp_lib/yarn.lock ./
           mv lib ../temp_lib/
-          mv lib.umd ../temp_lib/
           ls ../temp_lib/
 
           git fetch origin
@@ -55,7 +54,6 @@ jobs:
 
 
           rm -rf lib
-          rm -rf lib.umd
           mv ../temp_lib/* ./
           
           
