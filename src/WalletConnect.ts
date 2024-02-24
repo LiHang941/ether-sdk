@@ -161,15 +161,21 @@ export class WalletConnect {
     });
 
     let walletProvider: any;
+    let open = false
     while (true) {
       const isConnected = modal.getIsConnected();
       const state = modal.getState();
       Trace.debug("isConnected", isConnected, state);
       if (!isConnected) {
         if (!state.open) {
+          if (open){
+            throw new BasicException("User rejected the request");
+          }
           await modal.open({
             view: "Connect",
           });
+        } else {
+          open = true
         }
         await sleep(1000);
         continue;
