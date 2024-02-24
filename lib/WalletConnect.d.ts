@@ -13,7 +13,9 @@ export declare class WalletConnect {
     connectInfo: ConnectInfo;
     provider: any;
     disconnectCallBack: () => void;
+    connectCallBack: () => void;
     constructor(walletName: WalletType);
+    switchNetwork: (chainId: number) => void;
     disConnect(): void;
     update(): void;
     privateWallet(): Promise<void>;
@@ -41,10 +43,7 @@ export declare class WalletConnect {
 export declare class ConnectManager {
     private static connectInfo;
     private static walletConnect;
-    static chainMap: {
-        rinkeby: string;
-        mainnet: string;
-    };
+    static chainMap: Record<string, any>;
     /**
      * 初始化
      * @param wallet
