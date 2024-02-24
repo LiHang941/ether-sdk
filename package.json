@@ -13,7 +13,7 @@
   "scripts": {
     "test": "mocha test/**.spec.ts",
     "clean": "rimraf dist lib lib.esm lib.umd cache artifacts out",
-    "build": "npm run  clean && npm run build:cjs && npm run build:umd",
+    "build": "npm run clean && npm run build:cjs",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:umd": "webpack",
     "format": "prettier --write \"(src|test)/**/*.ts\"",
