@@ -19,7 +19,18 @@ export declare class WalletConnect {
     web3Provider(): Promise<void>;
     static connectMetaMask(): Promise<WalletConnect>;
     static getEthereum(): any;
-    static connectWalletconnect(): Promise<WalletConnect>;
+    static connectWalletconnect(metadata: {
+        name: string;
+        description: string;
+        url: string;
+        icons: string[];
+    }, projectId: string, mainnet: {
+        rpcUrl: string;
+        explorerUrl: string;
+        currency: string;
+        name: string;
+        chainId: number;
+    }): Promise<WalletConnect>;
     /**
      * 链接钱包
      * @returns
