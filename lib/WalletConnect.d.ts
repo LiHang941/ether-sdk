@@ -12,6 +12,7 @@ export declare class WalletConnect {
     wallet: WalletType;
     connectInfo: ConnectInfo;
     provider: any;
+    disconnectCallBack: () => void;
     constructor(walletName: WalletType);
     disConnect(): void;
     update(): void;
