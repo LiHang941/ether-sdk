@@ -22,7 +22,7 @@ export class MulContract {
 
     this._abi = toFragment(abi);
 
-    this._functions = this._abi.filter((x) => x.type === 'function').map((x) => FunctionFragment.from(x));
+    this._functions = this._abi.filter(it=> it).filter((x) => x.type === 'function').map((x) => FunctionFragment.from(x));
     const callFunctions = this._functions.filter((x) => x.stateMutability === 'pure' || x.stateMutability === 'view');
 
     for (const callFunction of callFunctions) {
