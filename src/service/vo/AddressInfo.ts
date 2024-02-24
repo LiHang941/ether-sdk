@@ -26,7 +26,7 @@ export class AddressInfo {
 
   public readonlyConnectInfo(): ConnectInfo {
     const currentConnect = getCurrentConnect();
-    if (currentConnect != null) {
+    if (currentConnect != null && currentConnect.status) {
       return currentConnect;
     }
 
