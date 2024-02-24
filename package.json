@@ -1,6 +1,6 @@
 {
   "name": "ether-sdk",
-  "version": "0.0.371",
+  "version": "0.0.1",
   "description": "ether-sdk",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -13,7 +13,7 @@
   "scripts": {
     "test": "mocha test/**.spec.ts",
     "clean": "rimraf dist lib lib.esm lib.umd cache artifacts out",
-    "build": "npm run  clean && npm run build:cjs && npm run build:umd",
+    "build": "npm run clean && npm run build:cjs",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:umd": "webpack",
     "format": "prettier --write \"(src|test)/**/*.ts\"",
@@ -48,11 +48,11 @@
     "node": ">=10"
   },
   "dependencies": {
+    "@web3modal/ethers5": "^4.0.10",
     "axios": "^0.23.0",
     "bignumber.js": "^9.0.1",
     "ethers": "^5.6.4",
-    "lodash": "^4.17.21",
-    "@walletconnect/web3-provider": "^1.7.8"
+    "lodash": "^4.17.21"
   },
   "mocha": {
     "timeout": 120000,

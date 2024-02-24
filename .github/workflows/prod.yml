@@ -21,7 +21,7 @@ jobs:
       - name: setup nodejs
         uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: build
         run: |
 
@@ -35,13 +35,26 @@ jobs:
           export GIT_TAG="0.0.$(git rev-list --count HEAD)1"
 
           echo "TAG ->> $GIT_TAG"
-          git fetch origin
-          git checkout -b release origin/release
-          git merge master
+          
+          mkdir ../temp_lib/
+          cp -r yarn.lock ../temp_lib/
+          
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
           npm run build
+
+
+          mv ../temp_lib/yarn.lock ./
+          mv lib ../temp_lib/
+          ls ../temp_lib/
+
+          git fetch origin
+          git checkout -b release origin/release
+
+
+          rm -rf lib
+          mv ../temp_lib/* ./
           
           rm -rf src
           rm -rf test
