@@ -25,11 +25,6 @@ export class AddressInfo {
   public readonlyConnectInfoInstance: ConnectInfo = null;
 
   public readonlyConnectInfo(): ConnectInfo {
-    const currentConnect = getCurrentConnect();
-    if (currentConnect != null && currentConnect.status) {
-      return currentConnect;
-    }
-
     if (this.readonlyConnectInfoInstance == null) {
       const provider = new providers.StaticJsonRpcProvider(this.rpc,this.chainId);
       const connectInfo = new ConnectInfo();

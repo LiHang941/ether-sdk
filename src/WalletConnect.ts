@@ -1,10 +1,11 @@
 import {ConnectInfo} from './ConnectInfo';
-import {Trace} from './service';
+import { sleep, Trace } from './service';
 import {providers, Wallet} from 'ethers';
 import {getCurrentAddressInfo} from './Constant';
 import {BasicException} from './BasicException';
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5'
 import type { Provider } from '@web3modal/scaffold-utils/dist/types/exports/ethers';
+import { Web3Modal } from '@web3modal/ethers5/dist/types/src/client';
 
 
 export class PrivateWallet {
@@ -28,6 +29,7 @@ export class WalletConnect {
   connectInfo: ConnectInfo;
   provider: any;
   disconnectCallBack: () => void = null;
+  connectCallBack: () => void = null;
 
   constructor(walletName: WalletType) {
     this.wallet = walletName;
@@ -37,8 +39,18 @@ export class WalletConnect {
     this.connectInfo = connectInfo;
   }
 
-  disConnect() {
+  switchNetwork:(chainId: number)=>void =(chainId)=> {
+    const [chainName,] = Object.entries(ConnectManager.chainMap).find(([key, value]) => {
+      if (typeof value === 'string') {
+        return chainId === parseInt(value, 16);
+      }else {
+        return chainId === parseInt(value.chainId,16);
+      }
+    })
+    ConnectManager.addMetamaskChain(chainName);
+  }
 
+  disConnect() {
     if (this.disconnectCallBack){
       try {
         this.disconnectCallBack()
@@ -64,6 +76,15 @@ export class WalletConnect {
       connectInfo.account = connectInfo.account.toLowerCase();
       connectInfo.addressInfo = currentAddressInfo;
       Trace.debug('connect success ', connectInfo.account);
+
+      if (this.connectCallBack){
+        try {
+          this.connectCallBack()
+        }catch (e){
+          Trace.error(e)
+        }
+      }
+
     }
     if (connectInfo.status) {
       connectInfo.clear();
@@ -132,45 +153,77 @@ export class WalletConnect {
       chainId: number;
     }
   ): Promise<WalletConnect> {
-
     const modal = createWeb3Modal({
       ethersConfig: defaultConfig({ metadata }),
       chains: [mainnet],
+      defaultChain: mainnet,
       projectId,
-      enableAnalytics: true // Optional - defaults to your Cloud configuration
-    })
+    });
 
-    const isConnected = modal.getIsConnected();
-    let walletProvider:Provider
-    if (!isConnected) {
-      await modal.open()
-      walletProvider = await new Promise<Provider>((resolve, reject) => {
-        modal.subscribeProvider((newState) => {
-          Trace.debug('walletConnectProvider', newState);
-          if (newState && newState.provider) {
-            resolve(newState.provider)
-          }
-        })
-      })
-    }else {
-       walletProvider = modal.getWalletProvider();
+    let walletProvider: any;
+    while (true) {
+      const isConnected = modal.getIsConnected();
+      const state = modal.getState();
+      Trace.debug("isConnected", isConnected, state);
+      if (!isConnected) {
+        if (!state.open) {
+          await modal.open({
+            view: "Connect",
+          });
+        }
+        await sleep(1000);
+        continue;
+      } else {
+        walletProvider = modal.getWalletProvider();
+      }
+      Trace.debug("walletProvider", walletProvider);
+
+      if (walletProvider) {
+        if (modal.getState().selectedNetworkId !== mainnet.chainId) {
+          await modal.switchNetwork(mainnet.chainId);
+          continue;
+        }
+      }
+      if (walletProvider) {
+        await modal.close();
+        break;
+      }
     }
-
-    if (modal.getState().selectedNetworkId !== mainnet.chainId){
-      await modal.switchNetwork(mainnet.chainId)
-    }
-
-    const walletConnectProvider = new providers.Web3Provider(walletProvider, 'any')
-    const network = await walletConnectProvider.getNetwork();
-    if (network.chainId !== mainnet.chainId){
-
-    }
-
+    Trace.debug("connect walletProvider", walletProvider);
+    const walletConnectProvider = new providers.Web3Provider(
+      walletProvider,
+      "any"
+    );
     const walletConnect = new WalletConnect(walletConnectProvider);
     walletConnect.provider = walletConnectProvider;
-    walletConnect.disconnectCallBack= ()=>{
-      modal.disconnect()
+
+    walletConnect.switchNetwork = (_chainId) => {
+      modal.switchNetwork(_chainId);
     }
+    walletConnect.disconnectCallBack = () => {
+      modal.close().catch();
+      modal.disconnect().catch();
+    };
+    walletConnect.connectCallBack = ()=>{
+      modal.close().catch();
+    }
+
+    let account: any = await walletConnectProvider.getSigner().getAddress();
+    let chainId: any = (await walletConnectProvider.getNetwork()).chainId;
+    modal.subscribeProvider((newState) => {
+      if (newState && newState.provider) {
+        if (newState.chainId !== chainId) {
+          walletConnectProvider.emit("chainChanged", newState.chainId);
+          chainId = newState.chainId;
+          return;
+        }
+        if (account !== newState.address) {
+          walletConnectProvider.emit("accountsChanged", [newState.address]);
+          account = newState.address;
+          return;
+        }
+      }
+    });
     return walletConnect;
   }
 
@@ -204,7 +257,7 @@ export class ConnectManager {
   private static connectInfo: ConnectInfo;
   private static walletConnect: WalletConnect;
 
-  public static chainMap = {
+  public static chainMap:Record<string, any> = {
     rinkeby: '0x4',
     mainnet: '0x1',
   };
