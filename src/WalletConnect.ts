@@ -130,16 +130,18 @@ export class WalletConnect {
       enableAnalytics: true // Optional - defaults to your Cloud configuration
     })
 
-    await modal.open()
-
-    const walletProvider:Provider = await new Promise<Provider>((resolve, reject) => {
-      modal.subscribeProvider((newState) => {
-        Trace.debug('walletConnectProvider', newState);
-        if (newState && newState.provider) {
-          resolve(newState.provider)
-        }
+    let walletProvider:Provider = modal.getWalletProvider();
+    if (!walletProvider){
+      await modal.open()
+      walletProvider = await new Promise<Provider>((resolve, reject) => {
+        modal.subscribeProvider((newState) => {
+          Trace.debug('walletConnectProvider', newState);
+          if (newState && newState.provider) {
+            resolve(newState.provider)
+          }
+        })
       })
-    })
+    }
     const walletConnectProvider = new providers.Web3Provider(walletProvider, 'any')
     const walletConnect = new WalletConnect(walletConnectProvider);
     walletConnect.provider = walletConnectProvider;
