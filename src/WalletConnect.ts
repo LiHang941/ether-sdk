@@ -44,7 +44,7 @@ export class WalletConnect {
       if (typeof value === 'string') {
         return chainId === parseInt(value, 16);
       }else {
-        return chainId === parseInt(value.chainId,16);
+        return chainId === parseInt(value[0].chainId,16);
       }
     })
     ConnectManager.addMetamaskChain(chainName);
