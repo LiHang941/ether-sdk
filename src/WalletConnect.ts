@@ -3,9 +3,6 @@ import { sleep, Trace } from './service';
 import {providers, Wallet} from 'ethers';
 import {getCurrentAddressInfo} from './Constant';
 import {BasicException} from './BasicException';
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5'
-import type { Provider } from '@web3modal/scaffold-utils/dist/types/exports/ethers';
-import { Web3Modal } from '@web3modal/ethers5/dist/types/src/client';
 
 
 export class PrivateWallet {
@@ -153,6 +150,9 @@ export class WalletConnect {
       chainId: number;
     }
   ): Promise<WalletConnect> {
+
+    // import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5'
+    const { createWeb3Modal, defaultConfig } = require('@web3modal/ethers5');
     const modal = createWeb3Modal({
       ethersConfig: defaultConfig({ metadata }),
       chains: [mainnet],
