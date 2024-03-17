@@ -3,6 +3,7 @@ import { sleep, Trace } from './service';
 import {providers, Wallet} from 'ethers';
 import {getCurrentAddressInfo} from './Constant';
 import {BasicException} from './BasicException';
+import { createWeb3Modal } from '../wallet-connect';
 
 
 export class PrivateWallet {
@@ -135,29 +136,9 @@ export class WalletConnect {
 
 
   static async connectWalletconnect(
-    metadata:{
-      name: string,
-      description: string,
-      url: string, // origin must match your domain & subdomain
-      icons: string[]
-    },
-    projectId: string,
-    mainnet: {
-      rpcUrl: string;
-      explorerUrl: string;
-      currency: string;
-      name: string;
-      chainId: number;
-    }
+    modal:any,
+    currentChainId: number
   ): Promise<WalletConnect> {
-    const { createWeb3Modal, defaultConfig } = require('wallet-connect');
-    const modal = createWeb3Modal({
-      ethersConfig: defaultConfig({ metadata }),
-      chains: [mainnet],
-      defaultChain: mainnet,
-      projectId,
-    });
-
     let walletProvider: any;
     let open = false
     while (true) {
@@ -183,8 +164,8 @@ export class WalletConnect {
       Trace.debug("walletProvider", walletProvider);
 
       if (walletProvider) {
-        if (modal.getState().selectedNetworkId !== mainnet.chainId) {
-          await modal.switchNetwork(mainnet.chainId);
+        if (modal.getState().selectedNetworkId !== currentChainId) {
+          await modal.switchNetwork(currentChainId);
           continue;
         }
       }
