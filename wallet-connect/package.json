@@ -1,0 +1,26 @@
+{
+  "name": "wallect-connect",
+  "license": "MIT",
+  "version": "3.0.3-beta.01",
+  "description": "",
+  "main": "dist/cjs/index.js",
+  "module": "dist/cjs/index.js",
+  "files": [
+    "dist"
+  ],
+  "repository": "",
+  "keywords": [
+    "uniswap",
+    "ethereum"
+  ],
+  "scripts": {
+  },
+  "dependencies": {
+  },
+  "peerDependencies": {
+
+  },
+  "engines": {
+    "node": ">=10"
+  }
+}

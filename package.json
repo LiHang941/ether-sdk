@@ -42,13 +42,13 @@
     "typedoc": "^0.22.10",
     "typescript": "^4.5.2",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "wallet-connect": "file:wallet-connect"
   },
   "engines": {
     "node": ">=10"
   },
   "dependencies": {
-    "@web3modal/ethers5": "^4.0.10",
     "axios": "^0.23.0",
     "bignumber.js": "^9.0.1",
     "ethers": "^5.6.4",
