@@ -3,7 +3,6 @@ import { sleep, Trace } from './service';
 import {providers, Wallet} from 'ethers';
 import {getCurrentAddressInfo} from './Constant';
 import {BasicException} from './BasicException';
-import { createWeb3Modal } from '../wallet-connect';
 
 
 export class PrivateWallet {
