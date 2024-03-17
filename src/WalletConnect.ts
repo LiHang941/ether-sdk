@@ -150,7 +150,7 @@ export class WalletConnect {
       chainId: number;
     }
   ): Promise<WalletConnect> {
-    const { createWeb3Modal, defaultConfig } =  await import('wallet-connect/dist/cjs/main.js');
+    const { createWeb3Modal, defaultConfig } = require('wallet-connect');
     const modal = createWeb3Modal({
       ethersConfig: defaultConfig({ metadata }),
       chains: [mainnet],
