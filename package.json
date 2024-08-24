@@ -32,15 +32,13 @@
     "build:contracts": "rm -rf src/abi/*.sol && npx hardhat compile && cp -r artifacts/contracts/* src/abi/ && rm -rf src/abi/*/*.dbg.json && sh abi-handler.sh"
   },
   "dependencies": {
-    "@pythnetwork/pyth-evm-js": "^1.38.0",
     "axios": "^1.6.0",
     "bignumber.js": "^9.1.2",
     "ethers5": "npm:ethers@5.7.2",
     "ethers6": "npm:ethers@6.12.1",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "lodash": "^4.17.21",
-    "ws": "^8.17.0"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
