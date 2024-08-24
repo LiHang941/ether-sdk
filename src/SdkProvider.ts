@@ -8,7 +8,7 @@ export class SdkProvider {
 
   private static initConfigState = false;
 
-  public static currentChainType = ChainType.mantle;
+  public static currentChainType = ChainType.bsc;
 
   static initConfig(ENV: 'test' | 'prod'): void {
     SdkProvider.initConfigState = false;
