@@ -3,7 +3,8 @@ import {ConnectInfo} from '../../ConnectInfo'
 
 
 export enum ChainType {
-  mantle = 'mantle',
+  bsc = 'bsc',
+  matic = 'matic',
 }
 
 export const ChainTypeList = Object.values(ChainType)
