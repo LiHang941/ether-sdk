@@ -35,10 +35,10 @@ jobs:
           export GIT_TAG="0.0.$(git rev-list --count HEAD)1"
 
           echo "TAG ->> $GIT_TAG"
-          
+
           mkdir ../temp_lib/
           cp -r yarn.lock ../temp_lib/
-          
+
           # build
           GIT_SSH_COMMAND="ssh"
           npm install
@@ -47,6 +47,8 @@ jobs:
 
           mv ../temp_lib/yarn.lock ./
           mv lib ../temp_lib/
+          mv lib.umd ../temp_lib/
+          mv package.json ../temp_lib/
           ls ../temp_lib/
 
           git fetch origin
@@ -54,17 +56,19 @@ jobs:
 
 
           rm -rf lib
+          rm -rf lib.umd
+          rm -rf package.json
           mv ../temp_lib/* ./
-          
+
           rm -rf src
           rm -rf test
 
           # upload
           cat package.json | jq --arg tag ${GIT_TAG}  'setpath(["version"];$tag)' > "package.json.bak"
           mv package.json.bak package.json
-          
+
           git add .
-          
+
           git commit -m "${GIT_COMMIT_MESSAGE}"
           git tag -a ${GIT_TAG} -m "${GIT_COMMIT_MESSAGE}"
           git push --tags
