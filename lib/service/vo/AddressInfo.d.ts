@@ -1,8 +1,9 @@
 import { ConnectInfo } from '../../ConnectInfo';
 export declare enum ChainType {
-    mantle = "mantle"
+    bsc = "bsc",
+    matic = "matic"
 }
-export declare const ChainTypeList: ChainType.mantle[];
+export declare const ChainTypeList: ChainType[];
 export interface ChainInfo {
     chainId: number;
     scan: string;
