@@ -1,11 +1,17 @@
-import { Fragment, FunctionFragment, JsonFragment } from '@ethersproject/abi';
+import { Fragment, FunctionFragment, type JsonFragment } from 'ethers6';
+import { ContractCall } from "./types";
+export interface MulContractConfig {
+}
+export type CallFunction = (...args: Array<any>) => ContractCall<unknown>;
 export declare class MulContract {
-    private _address;
-    private _abi;
-    private _functions;
+    private readonly _address;
+    private readonly _abi;
+    private readonly _functions;
+    private readonly _mulContractConfig;
     get address(): string;
     get abi(): Fragment[];
     get functions(): FunctionFragment[];
-    constructor(address: string, abi: JsonFragment[] | string[] | Fragment[]);
-    [method: string]: any;
+    get mulContractConfig(): MulContractConfig;
+    constructor(address: string, abi: JsonFragment[] | string[] | Fragment[], config?: MulContractConfig);
+    [method: string]: CallFunction | any;
 }

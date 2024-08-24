@@ -11,7 +11,7 @@ export declare class BasicException extends Error {
      * @param sourceError
      * @param detail
      */
-    constructor(msg?: string, sourceError?: Error, code?: number, detail?: any);
+    constructor(msg?: string, sourceError?: Error | undefined, code?: number, detail?: any);
     get code(): number;
     /**
      * 错误信息

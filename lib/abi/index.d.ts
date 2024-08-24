@@ -1,4 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi';
-declare const IERC20: JsonFragment[];
-declare const Multicall2: JsonFragment[];
-export { IERC20, Multicall2, };
+/**
+ * ABI
+ */
+import type { JsonFragment } from 'ethers6';
+export declare const IERC20Abi: JsonFragment[];
+export declare const Multicall2Abi: JsonFragment[];

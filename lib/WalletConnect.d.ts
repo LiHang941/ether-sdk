@@ -1,31 +1,25 @@
+import { type JsonRpcApiProvider, type Signer } from 'ethers6';
 import { ConnectInfo } from './ConnectInfo';
-import { providers, Wallet } from 'ethers';
-export declare class PrivateWallet {
-    provider: providers.JsonRpcProvider;
-    wallet: Wallet;
-}
-export declare type WalletType = PrivateWallet | providers.Web3Provider | {
-    provider: any;
-};
-export declare const getCurrentConnect: () => ConnectInfo;
 export declare class WalletConnect {
-    wallet: WalletType;
+    wallet: any;
     connectInfo: ConnectInfo;
-    provider: any;
+    provider?: any;
     disconnectCallBack: () => void;
     connectCallBack: () => void;
-    constructor(walletName: WalletType);
-    switchNetwork: (chainId: number) => void;
+    callConnect(): void;
+    disConnectCall(): void;
+    getChainId(): Promise<number>;
+    getAccount(): Promise<string>;
+    getWallet(): Promise<Signer>;
+    getApiProvider(): Promise<JsonRpcApiProvider>;
+    switchNetwork: (chainId: number) => Promise<void>;
+    constructor(walletType: any, provider?: any);
     disConnect(): void;
     update(): void;
-    privateWallet(): Promise<void>;
-    web3Provider(): Promise<void>;
-    static connectMetaMask(): Promise<WalletConnect>;
-    static getEthereum(): any;
-    static connectWalletconnect(modal: any, currentChainId: number): Promise<WalletConnect>;
+    init(): Promise<void>;
     /**
      * 链接钱包
-     * @returns
+     * @returns ConnectInfo
      */
     connect(): Promise<ConnectInfo>;
 }
@@ -46,5 +40,7 @@ export declare class ConnectManager {
      * 获取连接
      */
     static getConnect(): ConnectInfo;
-    static addMetamaskChain(chainName: string): void;
+    static checkConnect(): boolean;
+    static getWalletConnect(): WalletConnect;
+    static getChainName(chainId: number): string;
 }

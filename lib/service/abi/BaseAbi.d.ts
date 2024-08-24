@@ -1,10 +1,9 @@
-import { ConnectInfo } from '../../ConnectInfo';
-import { AddressInfo } from '../vo';
-import { Contract, providers } from 'ethers';
-import { MulContract } from "../../mulcall";
-import { Fragment, JsonFragment } from "@ethersproject/abi";
+import { Contract, type Fragment, type JsonFragment, type Provider } from 'ethers6';
+import type { ConnectInfo } from '../../ConnectInfo';
+import type { AddressInfo } from '../vo';
+import { MulContract } from '../../mulcall';
 export declare class BaseAbi {
-    protected provider: providers.Provider;
+    protected provider: Provider;
     protected connectInfo: ConnectInfo;
     protected addressInfo: AddressInfo;
     mulContract: MulContract;

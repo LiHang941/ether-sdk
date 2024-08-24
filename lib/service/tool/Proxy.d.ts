@@ -1,3 +1,4 @@
+import { ConnectInfo } from "../../ConnectInfo";
 export declare class ErrorInfo {
     error: Error;
     msg: string;
@@ -18,7 +19,9 @@ export declare function registerTransactionErrorHandler(errorHandler: (error: Er
  * @param target
  */
 export declare function errorHandlerController(e: Error, method: string, args: any, target: any): void;
-export declare function clearCache(): void;
+export type Newable<T extends object> = new (...args: any[]) => T;
+export declare function mixProxy<T extends object>(clazz: Newable<T>, ...args: any[]): T;
+export declare function mixProxyByConnect<T extends object>(clazz: Newable<T>, connectInfo: ConnectInfo, ...args: any[]): T;
 /**
  * 对象代理
  * @param obj

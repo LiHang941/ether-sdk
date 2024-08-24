@@ -1,20 +1,31 @@
-import { ConnectInfo } from "../../ConnectInfo";
+import { ConnectInfo } from '../../ConnectInfo';
+export declare enum ChainType {
+    mantle = "mantle"
+}
+export declare const ChainTypeList: ChainType.mantle[];
+export interface ChainInfo {
+    chainId: number;
+    scan: string;
+    rpc: string;
+    multicall: string;
+    chainName: string;
+    chainType: ChainType;
+    chainToken: string;
+}
 /**
  * 地址信息
  */
 export declare class AddressInfo {
-    /**
-     * chainID
-     */
-    chainId: number;
-    /**
-     * 链上区块浏览器地址
-     */
-    scan: string;
-    rpc: string;
-    multicall: string;
-    readonlyConnectInfoInstance: ConnectInfo;
-    readonlyConnectInfo(): ConnectInfo;
-    getEtherscanAddress(address: any): string;
-    getEtherscanTx(tx: any): string;
+    private readonly chain;
+    private readonly chainMap;
+    private chainInsMap;
+    env: string;
+    constructor(chains: ChainInfo[]);
+    getDefaultChain(): ChainInfo;
+    getAllChain(): ChainInfo[];
+    getChainInfo(chain: number | ChainType | string): ChainInfo;
+    readonlyConnectInfo(chain: ChainInfo): ConnectInfo;
+    getEtherscanAddress(chainInfo: ChainInfo, address: string): string;
+    getEtherscanTx(chainInfo: ChainInfo, tx: string): string;
+    getEtherscanLink(chainInfo: ChainInfo, data: string, type: 'transaction' | 'token' | 'address' | 'block'): string;
 }

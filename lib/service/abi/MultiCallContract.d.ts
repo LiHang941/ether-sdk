@@ -1,12 +1,18 @@
-import { ConnectInfo } from '../../ConnectInfo';
-import { ContractCall, Provider } from '../../mulcall';
-import { BaseAbi } from "./BaseAbi";
-export interface ShapeWithLabel {
-    [item: string]: ContractCall | string;
-}
+import type { ConnectInfo } from '../../ConnectInfo';
+import type { ContractCall } from '../../mulcall';
+import { BaseAbi } from './BaseAbi';
+export type ShapeWithLabel = Record<string, ContractCall<any> | string>;
+export type ContractCallResult<T> = T extends ContractCall<infer U> ? U : never;
+export type CallObjResult<T extends ShapeWithLabel[]> = {
+    [K in keyof T]: {
+        [P in keyof T[K]]: T[K][P] extends ContractCall<any> ? ContractCallResult<T[K][P]> : T[K][P];
+    };
+};
 export declare class MultiCallContract extends BaseAbi {
-    multiCallInstance: Provider;
     constructor(connectInfo: ConnectInfo);
-    singleCall(shapeWithLabel: ShapeWithLabel): Promise<any>;
-    call(...shapeWithLabels: ShapeWithLabel[]): Promise<any[]>;
+    multicallExecute<T>(calls: ContractCall<T>[]): Promise<T[]>;
+    callObj<T extends ShapeWithLabel[]>(...shapeWithLabels: T): Promise<CallObjResult<T>>;
+    multicall_getCurrentBlockTimestamp(): ContractCall<string>;
+    multicall_getBlockNumber(): ContractCall<string>;
+    multicall_getEthBalance(user: string): ContractCall<string>;
 }

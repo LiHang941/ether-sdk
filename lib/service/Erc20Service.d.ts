@@ -1,11 +1,12 @@
 import BigNumber from 'bignumber.js';
-import { ConnectInfo } from '../ConnectInfo';
+import type { ConnectInfo } from '../ConnectInfo';
+import type { Token } from './tool';
 import { BaseService } from './BaseService';
-import { TransactionEvent } from './vo';
+import { Balance, BalanceAndAllowance, type TransactionEvent } from './vo';
 export declare class Erc20Service extends BaseService {
     constructor(connectInfo: ConnectInfo);
     /**
-     * 获取 ERC20的余额
+     * 获取 ETH/ERC20的余额
      * @param address
      * @param user
      */
@@ -35,16 +36,16 @@ export declare class Erc20Service extends BaseService {
     }>;
     /**
      * 获取ERC20的信息
-     * @param erc20AddressList
+     * @param addresses
      */
-    getErc20Info(...erc20AddressList: string[]): Promise<{
+    batchGetTokenInfo(...addresses: string[]): Promise<Array<{
         name: string;
         symbol: string;
         decimal: number;
         decimals: number;
         address: string;
         id: string;
-    }[]>;
+    }>>;
     /**
      * 获取合约币允许操作的金额
      * @param exchangeAddress 交易地址
@@ -72,18 +73,16 @@ export declare class Erc20Service extends BaseService {
      */
     approve(exchangeAddress: string, tokenAddress: string): Promise<TransactionEvent>;
     /**
-     * 批量获取余额
+     * 根据地址批量获取余额
      * @param user
      * @param tokens
      */
-    batchGetBalance(user: string, tokens: string[]): Promise<{
-        [item: string]: {
-            address: string;
-            amount: string;
-            value: string;
-            decimal: number;
-        };
-    }>;
+    batchGetBalance(user: string, tokens: string[]): Promise<Record<string, {
+        address: string;
+        amount: string;
+        value: string;
+        decimal: number;
+    }>>;
     /**
      * ERC20转账
      * @param tokenAddress
@@ -93,12 +92,16 @@ export declare class Erc20Service extends BaseService {
      */
     transfer(tokenAddress: string, to: string, amount: string | number | BigNumber): Promise<TransactionEvent>;
     /**
-     * MINT
-     * @deprecated
-     * @param tokenAddress
-     * @param to
-     * @param amount
-     * @return 交易hash
+     * 根据Token对象批量获取余额
+     * @param user
+     * @param tokens
      */
-    mint(tokenAddress: string, to: string, amount: string | number | BigNumber): Promise<TransactionEvent>;
+    batchGetBalanceInfo(user: string, tokens: Token[]): Promise<Record<string, Balance>>;
+    /**
+     * 批量获取余额和授权
+     * @param user    用户
+     * @param spender 授权的地址
+     * @param tokens
+     */
+    batchGetBalanceAndAllowance(user: string, spender: string, tokens: Token[]): Promise<Record<string, BalanceAndAllowance>>;
 }

@@ -1,6 +1,5 @@
-import { ConnectInfo } from '../../ConnectInfo';
-import { providers } from 'ethers';
-import { TransactionReceipt } from '@ethersproject/abstract-provider';
+import type { Provider, TransactionReceipt } from 'ethers6';
+import type { ConnectInfo } from '../../ConnectInfo';
 /**
  * -交易信息
  *
@@ -8,9 +7,9 @@ import { TransactionReceipt } from '@ethersproject/abstract-provider';
  *
  */
 export declare class TransactionEvent {
-    protected provider: providers.Provider;
-    protected connectInfo: ConnectInfo;
-    protected _hash: string;
+    provider: Provider;
+    connectInfo: ConnectInfo;
+    _hash: string;
     constructor(connectInfo: ConnectInfo, hash: string);
     /**
      * 获取交易HASH

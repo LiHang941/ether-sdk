@@ -1,8 +1,9 @@
-import { ConnectInfo } from '../ConnectInfo';
+import type { Contract, TransactionReceipt } from 'ethers6';
+import { Contract as ContractV5 } from 'ethers5';
+import type { ConnectInfo } from '../ConnectInfo';
 import { BaseService } from './BaseService';
 import { TransactionEvent } from './vo';
-import { Contract } from 'ethers';
-import { TransactionReceipt } from '@ethersproject/abstract-provider';
+import { Config } from "./vo/ExtTransactionEvent";
 export declare class TransactionService extends BaseService {
     constructor(connectInfo: ConnectInfo);
     defaultErrorMsg: string;
@@ -18,13 +19,9 @@ export declare class TransactionService extends BaseService {
      * @param args
      * @param config
      */
-    sendContractTransaction(contract: Contract, method: string, args?: any[], config?: {
-        gasPrice?: string;
-        gasLimit?: number;
-        fromAddress?: string;
-        value?: number | string;
-    }): Promise<TransactionEvent>;
+    sendContractTransaction(contract: Contract | ContractV5, method: string, args?: any[], config?: Config): Promise<TransactionEvent>;
     private sendRpcTransaction;
+    private sendExtTransaction;
     convertErrorMsg(e: any): string;
     /**
      *
@@ -33,7 +30,7 @@ export declare class TransactionService extends BaseService {
      */
     transactionErrorHandler(txId: string, message?: string): Promise<{
         message: string;
-        error: Error;
+        error: Error | undefined;
     }>;
     /**
      * 等待几个区块

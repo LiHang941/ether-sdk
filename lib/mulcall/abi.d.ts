@@ -1,7 +1,6 @@
-import { ParamType } from '@ethersproject/abi';
-import { BytesLike } from '@ethersproject/bytes';
+import type { BytesLike, ParamType } from 'ethers6';
+import { ethers } from 'ethers6';
 export declare class Abi {
     static encode(name: string, inputs: ParamType[], params: any[]): string;
-    static decode(outputs: ReadonlyArray<string | ParamType>, data: BytesLike): import("@ethersproject/abi").Result;
+    static decode(outputs: ReadonlyArray<string | ParamType>, data: BytesLike): ethers.Result;
 }
-export declare function isNullOrUndefined(value: any): boolean;

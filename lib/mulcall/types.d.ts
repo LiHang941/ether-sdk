@@ -1,5 +1,5 @@
-import { ParamType } from '@ethersproject/abi';
-export interface ContractCall {
+import type { ParamType } from 'ethers6';
+export interface ContractCall<T> {
     contract: {
         address: string;
     };
@@ -7,4 +7,6 @@ export interface ContractCall {
     inputs: ParamType[];
     outputs: ParamType[];
     params: any[];
+    callData(): Promise<string>;
+    result?: T;
 }

@@ -1,4 +1,4 @@
-import { Provider } from '@ethersproject/providers';
-import { ContractCall } from './types';
-export declare const CHUNK_SIZE = 255;
-export declare function all<T extends any[] = any[]>(calls: ContractCall[], multicallAddress: string, provider: Provider): Promise<T>;
+import type { Contract } from 'ethers6';
+import type { ContractCall } from './types';
+export declare const CHUNK_SIZE = 200;
+export declare function multicallExecute<T>(multicall: Contract, calls: ContractCall<T>[]): Promise<T[]>;
