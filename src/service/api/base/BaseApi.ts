@@ -61,10 +61,6 @@ export class BaseApi {
     }
   }
 
-  async graphRequest<T>(path:string,params:GQLParams<T>): Promise<T> {
-    return this.graphBase(`${getCurrentAddressInfo().graphUrl}${path}`, params.gql, params.params)
-  }
-
   connectInfo(chainInfo:ChainInfo): ConnectInfo {
     return getCurrentAddressInfo().readonlyConnectInfo(chainInfo)
   }
