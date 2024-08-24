@@ -3,7 +3,7 @@ import {ConnectManager} from '../WalletConnect'
 import {AddressInfo, ChainInfo, ChainType, Trace} from '../service'
 import addressConfig from './address.json'
 
-export function initAddress(ENV: 'test' | 'prod'): void {
+let initAddressFun = (ENV: 'test' | 'prod') => {
   if (ENV === 'test') {
 
     const maintle: ChainInfo = {
@@ -41,4 +41,13 @@ export function initAddress(ENV: 'test' | 'prod'): void {
   Trace.debug('address config init', ENV)
 
 
+}
+
+
+export function setInitAddress(fn: (ENV: 'test' | 'prod') => void) {
+  initAddressFun = fn
+}
+
+export function initAddress(ENV: 'test' | 'prod'): void {
+  initAddressFun(ENV)
 }
