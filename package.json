@@ -10,11 +10,11 @@
     "type": "git",
     "repository": "https://github.com/LiHang941/ether-sdk"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "dist"
+    "lib"
   ],
   "engines": {
     "node": ">=16.0.0"
@@ -23,7 +23,7 @@
     "build": "tsc -p tsconfig.cjs.json",
     "build:umd": "webpack",
     "trybuild": "yarn clean && tsc -p tsconfig.cjs.json && webpack && yarn clean",
-    "clean": "rimraf dist dist.esm dist.umd",
+    "clean": "rimraf lib lib.esm lib.umd",
     "lint": "eslint . --fix",
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
