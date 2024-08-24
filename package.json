@@ -20,7 +20,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.cjs.json",
+    "build": "tsc -p tsconfig.cjs.json && webpack",
     "build:umd": "webpack",
     "trybuild": "yarn clean && tsc -p tsconfig.cjs.json && webpack && yarn clean",
     "clean": "rimraf lib lib.esm lib.umd",
