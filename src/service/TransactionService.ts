@@ -1,20 +1,21 @@
-import { CacheKey, calculateGasMargin, EnableProxy, eqAddress, retry, sleep, SLEEP_MS, Trace } from './tool';
-import { ConnectInfo } from '../ConnectInfo';
-import { BaseService } from './BaseService';
-import { BasicException } from '../BasicException';
-import { TransactionEvent } from './vo';
-import { Contract } from 'ethers';
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
-import lodash from 'lodash';
-import { getCurrentAddressInfo } from '../Constant';
+import type {Contract, TransactionReceipt, TransactionRequest, TransactionResponse} from 'ethers6'
+import {Contract as ContractV5} from 'ethers5'
+import get from 'lodash/get'
+
+import type {ConnectInfo} from '../ConnectInfo'
+import {BasicException} from '../BasicException'
+import {CacheKey, calculateGasMargin, EnableProxy, retry, sleep, SLEEP_MS, Trace} from './tool'
+import {BaseService} from './BaseService'
+import {TransactionEvent} from './vo'
+import {Config, ExtTransactionEvent} from "./vo/ExtTransactionEvent";
 
 @CacheKey('TransactionService')
 export class TransactionService extends BaseService {
   constructor(connectInfo: ConnectInfo) {
-    super(connectInfo);
+    super(connectInfo)
   }
 
-  defaultErrorMsg = 'Please try again. Confirm the transaction and make sure you are paying enough gas!';
+  defaultErrorMsg = 'Please try again. Confirm the transaction and make sure you are paying enough gas!'
 
   /**
    * 检查交易
@@ -22,22 +23,24 @@ export class TransactionService extends BaseService {
    */
   @EnableProxy()
   public async checkTransactionError(txId: string): Promise<TransactionReceipt> {
-    let count = 1000;
+    let count = 1000
     while (count >= 0) {
-      const res = await retry(async () => {
-        return await this.provider.getTransactionReceipt(txId);
-      });
-      if (res != null && res.status != null && res.transactionHash.toLowerCase() === txId.toLowerCase()) {
+      const res: null | TransactionReceipt = await retry(async () => {
+        return await this.provider.getTransactionReceipt(txId)
+      })
+      // Trace.debug('checkTransactionError', res)
+      if (res && res.status !== null && res.hash.toLowerCase() === txId.toLowerCase()) {
         if (res.status) {
-          return res;
+          return res as TransactionReceipt
         } else {
-          const errorRes = await this.transactionErrorHandler(txId);
-          throw new BasicException(errorRes.message, errorRes.error);
+          const errorRes = await this.transactionErrorHandler(txId)
+          throw new BasicException(errorRes.message, errorRes.error)
         }
       }
-      await sleep(SLEEP_MS);
-      count--;
+      await sleep(SLEEP_MS)
+      count--
     }
+    throw new BasicException('Transaction timeout')
   }
 
   /**
@@ -49,71 +52,143 @@ export class TransactionService extends BaseService {
    */
   @EnableProxy()
   public async sendContractTransaction(
-    contract: Contract,
+    contract: Contract | ContractV5,
     method: string,
     args: any[] = [],
-    config: {
-      gasPrice?: string;
-      gasLimit?: number;
-      fromAddress?: string;
-      value?: number | string;
-    } = {},
+    config: Config = { },
   ): Promise<TransactionEvent> {
-    const currentChain = getCurrentAddressInfo().chainId;
-    const chainId = (await this.connectInfo.provider.getNetwork()).chainId;
-    if (chainId !== currentChain) {
-      throw new BasicException(`Check your wallet network chain id = ${currentChain}!`);
+    config.value = config.value || '0'
+    config.maxPriorityFeePerGas = config.maxPriorityFeePerGas || null
+    config.maxFeePerGas = config.maxFeePerGas || null
+    const currentChain = this.connectInfo.chainInfo().chainId
+    const chainId = Number.parseInt((await this.connectInfo.provider.getNetwork()).chainId.toString())
+    if (chainId !== currentChain)
+      throw new BasicException(`Check your wallet network chain id = ${currentChain}!`)
+
+    if (this.connectInfo.connectMethod === 'EXT') {
+      return await this.sendExtTransaction(contract, method, args, config)
     }
-    return await this.sendRpcTransaction(contract, method, args, config);
+    return await this.sendRpcTransaction(contract, method, args, config)
   }
 
   private async sendRpcTransaction(
-    contract: Contract,
+    contract: Contract | ContractV5,
     method: string,
     args: any[],
-    config: { gasPrice?: string; gasLimit?: number; value?: number | string },
+    config: Config,
   ) {
-    try {
-      const estimatedGasLimit = await contract.estimateGas[method](...args, config);
-      config.gasLimit = calculateGasMargin(estimatedGasLimit.toString());
-      const awaitTransactionResponse = contract[method] as (...args: any) => Promise<TransactionResponse>;
-      const response = await awaitTransactionResponse(...args, config);
-      return new TransactionEvent(this.connectInfo, response.hash);
-    } catch (e: any) {
-      throw new BasicException(this.convertErrorMsg(e), e);
+    if (contract instanceof ContractV5) {
+      try {
+        const extTransactionEvent = await this.sendExtTransaction(contract, method, args, config)
+        const txData = extTransactionEvent.data;
+        const txConfig = extTransactionEvent.config;
+        const response = await this.connectInfo.getWalletOrProvider().sendTransaction({
+          data: txData,
+          gasPrice: txConfig.gasPrice,
+          gasLimit: txConfig.gasLimit,
+          value: txConfig.value,
+          to: txConfig.to,
+          from: txConfig.from,
+          maxPriorityFeePerGas: null,
+          maxFeePerGas: null,
+        });
+        return new TransactionEvent(this.connectInfo, response.hash)
+      } catch (e: any) {
+        throw new BasicException(this.convertErrorMsg(e), e)
+      }
+    } else {
+      try {
+        const estimatedGasLimit = await contract[method].estimateGas(...args, config)
+        config.gasLimit = calculateGasMargin(estimatedGasLimit.toString())
+        // config.gasLimit =  2500000000
+        const awaitTransactionResponse = contract[method].send as (...args: any) => Promise<TransactionResponse>
+        const response = await awaitTransactionResponse(...args, config)
+        return new TransactionEvent(this.connectInfo, response.hash)
+      } catch (e: any) {
+        throw new BasicException(this.convertErrorMsg(e), e)
+      }
     }
   }
 
-  convertErrorMsg(e: any): string {
-    Trace.error('ERROR', e);
-    let recursiveErr = e;
-    let reason: string | undefined;
-    // for MetaMask
-    if (lodash.get(recursiveErr, 'data.message')) {
-      reason = lodash.get(recursiveErr, 'data.message');
+  private async sendExtTransaction(
+    contract: Contract | ContractV5,
+    method: string,
+    args: any[],
+    config: Config,
+  ): Promise<ExtTransactionEvent> {
+    if (contract instanceof ContractV5) {
+      try {
+        const populatedTransaction = await contract.populateTransaction[method](...args, {
+          ...config,
+          from: this.connectInfo.account,
+        });
+        const signerOrProvider = (contract.signer || contract.provider);
+
+        const estimatedGasLimit = await signerOrProvider.estimateGas(
+          populatedTransaction
+        )
+
+        config.gasLimit = calculateGasMargin(estimatedGasLimit.toString());
+
+        const data = populatedTransaction.data
+        return new ExtTransactionEvent(this.connectInfo, data, {
+          ...config,
+          from: this.connectInfo.account,
+          to: contract.address,
+        })
+      } catch (e: any) {
+        throw new BasicException(this.convertErrorMsg(e), e)
+      }
     } else {
-      // tslint:disable-next-line:max-line-length
-      // https://github.com/Uniswap/interface/blob/ac962fb00d457bc2c4f59432d7d6d7741443dfea/src/hooks/useSwapCallback.tsx#L216-L222
-      while (recursiveErr) {
-        reason =
-          lodash.get(recursiveErr, 'reason') ||
-          lodash.get(recursiveErr, 'data.message') ||
-          lodash.get(recursiveErr, 'message') ||
-          reason;
-        recursiveErr = lodash.get(recursiveErr, 'error') || lodash.get(recursiveErr, 'data.originalError');
+      try {
+        const estimatedGasLimit = await contract[method].estimateGas(...args, {
+          ...config,
+          from: this.connectInfo.account,
+        })
+        config.gasLimit = calculateGasMargin(estimatedGasLimit.toString())
+        const data = contract.interface.encodeFunctionData(method, args);
+        return new ExtTransactionEvent(this.connectInfo, data, {
+          ...config,
+          from: this.connectInfo.account,
+          to: await contract.getAddress(),
+        })
+      } catch (e: any) {
+        throw new BasicException(this.convertErrorMsg(e), e)
       }
     }
-    reason = reason || this.defaultErrorMsg;
-    const REVERT_STR = 'execution reverted: ';
-    const indexInfo = reason.indexOf(REVERT_STR);
-    const isRevertedError = indexInfo >= 0;
 
-    if (isRevertedError) {
-      reason = reason.substring(indexInfo + REVERT_STR.length);
+
+  }
+
+  convertErrorMsg(e: any): string {
+    Trace.error('ERROR', e)
+    let recursiveErr = e
+    let reason: string | undefined
+    // for MetaMask
+    if (get(recursiveErr, 'data.message')) {
+      reason = get(recursiveErr, 'data.message')
+    } else {
+      // https://github.com/Uniswap/interface/blob/ac962fb00d457bc2c4f59432d7d6d7741443dfea/src/hooks/useSwapCallback.tsx#L216-L222
+      while (recursiveErr) {
+        reason
+          = get(recursiveErr, 'reason')
+          || get(recursiveErr, 'data.message')
+          || get(recursiveErr, 'message')
+          || get(recursiveErr, 'info.error.message')
+          || reason
+        recursiveErr = get(recursiveErr, 'error') || get(recursiveErr, 'data.originalError') || get(recursiveErr, 'info')
+      }
     }
+    reason = reason || this.defaultErrorMsg
+    const REVERT_STR = 'execution reverted: '
+    const indexInfo = reason.indexOf(REVERT_STR)
+    const isRevertedError = indexInfo >= 0
 
-    let msg = reason;
-    /*if (msg === 'AMM._update: TRADINGSLIPPAGE_TOO_LARGE_THAN_LAST_TRANSACTION') {
+    if (isRevertedError)
+      reason = reason.substring(indexInfo + REVERT_STR.length)
+
+    let msg = reason
+    /* if (msg === 'AMM._update: TRADINGSLIPPAGE_TOO_LARGE_THAN_LAST_TRANSACTION') {
       msg = 'Trading slippage is too large.';
     } else if (msg === 'Amm.burn: INSUFFICIENT_LIQUIDITY_BURNED') {
       msg = "The no. of tokens you're removing is too small.";
@@ -123,11 +198,11 @@ export class TransactionService extends BaseService {
       msg = 'Slippage is too large now, try again later';
     }
     // 不正常的提示
-    else*/
-    if (!/[A-Za-z0-9\. _\:：%]+/.test(msg)) {
-      msg = this.defaultErrorMsg;
-    }
-    return msg;
+    else */
+    if (!/[A-Za-z0-9\\. _\\:：%]+/.test(msg))
+      msg = this.defaultErrorMsg
+
+    return msg
   }
 
   /**
@@ -139,32 +214,32 @@ export class TransactionService extends BaseService {
     txId: string,
     message: string = this.defaultErrorMsg,
   ): Promise<{
-    message: string;
-    error: Error;
+    message: string
+    error: Error | undefined
   }> {
-    let error = null;
-    let errorCode = '';
+    let error
+    let errorCode = ''
     try {
-      const txData = await this.provider.getTransaction(txId);
+      const txData = await this.provider.getTransaction(txId)
       try {
-        const s = await this.provider.call(txData, txData.blockNumber);
-        Trace.debug(s);
-      } catch (e) {
-        errorCode = this.convertErrorMsg(e);
-        error = e;
-        Trace.debug('transactionErrorHandler ERROR ', txId, e);
+        const s = await this.provider.call(txData as TransactionRequest)
+        Trace.debug(s)
+      } catch (e: any) {
+        errorCode = this.convertErrorMsg(e)
+        error = e
+        Trace.debug('TransactionService.transactionErrorHandler error ', txId, e)
       }
-    } catch (e) {
-      error = e;
-      Trace.debug('transactionErrorHandler ERROR ', txId, e);
+    } catch (e: any) {
+      error = e
+      Trace.debug('TransactionService.transactionErrorHandler error ', txId, e)
     }
-    if (errorCode !== '') {
-      message = errorCode;
-    }
+    if (errorCode !== '')
+      message = errorCode
+
     return {
       error,
       message,
-    };
+    }
   }
 
   /**
@@ -174,16 +249,17 @@ export class TransactionService extends BaseService {
    */
   public async sleepBlock(count: number = 1) {
     const fistBlock = await retry(async () => {
-      return await this.provider.getBlockNumber();
-    });
+      return await this.provider.getBlockNumber()
+    })
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const lastBlock = await retry(async () => {
-        return await this.provider.getBlockNumber();
-      });
-      if (lastBlock - fistBlock >= count) {
-        return;
-      }
-      await sleep(SLEEP_MS);
+        return await this.provider.getBlockNumber()
+      })
+      if (lastBlock - fistBlock >= count)
+        return
+
+      await sleep(SLEEP_MS)
     }
   }
 }

@@ -90,6 +90,7 @@ bower_components
 .CVS
 intermediate
 publish
+.DS_Store
 .idea
 .graphics
 _test
@@ -111,11 +112,18 @@ example.js
 # Build directories #
 #####################
 build
-dist
+*.log
+*.tgz
+coverage
 docs
 
 # Files to ignore #
 #####################
 package-lock.json
 doc
+
+lib-cov
+logs
+node_modules
+temp
 

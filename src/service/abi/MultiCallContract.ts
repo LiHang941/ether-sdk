@@ -1,53 +1,80 @@
-import { CacheKey } from '../tool';
-import { BaseService } from '../BaseService';
-import { ConnectInfo } from '../../ConnectInfo';
-import { Multicall2 } from '../../abi';
+import { CacheKey } from '../tool'
+import type { ConnectInfo } from '../../ConnectInfo'
+import { Multicall2Abi } from '../../abi'
 
-import { ContractCall, MulContract, Provider } from '../../mulcall';
-import { fromPairs, toPairs } from 'lodash';
-import {BaseAbi} from "./BaseAbi";
+import type { ContractCall } from '../../mulcall'
+import { multicallExecute } from '../../mulcall'
+import { BaseAbi } from './BaseAbi'
 
-export interface ShapeWithLabel {
-  [item: string]: ContractCall | string;
-}
+export type ShapeWithLabel = Record<string, ContractCall<any>|string>;
+export type ContractCallResult<T> = T extends ContractCall<infer U> ? U : never;
+export type CallObjResult<T extends ShapeWithLabel[]> = {
+  [K in keyof T]: {
+    [P in keyof T[K]]: T[K][P] extends ContractCall<any>
+      ? ContractCallResult<T[K][P]>
+      : T[K][P];
+  };
+};
 
 @CacheKey('MultiCallContract')
 export class MultiCallContract extends BaseAbi {
-  public multiCallInstance: Provider;
-
   constructor(connectInfo: ConnectInfo) {
-    super(connectInfo,connectInfo.addressInfo.multicall,Multicall2);
-    this.multiCallInstance = new Provider(this.connectInfo.provider, this.connectInfo.addressInfo.multicall);
+    super(connectInfo, connectInfo.chainInfo().multicall as string, Multicall2Abi)
   }
 
-  async singleCall(shapeWithLabel: ShapeWithLabel): Promise<any> {
-    const [res] = await this.call(...[shapeWithLabel]);
-    return res;
+  async  multicallExecute<T>(
+    calls: ContractCall<T>[],
+  ): Promise<T[]> {
+    const res = await multicallExecute(this.contract, calls)
+    return res
   }
 
-  async call(...shapeWithLabels: ShapeWithLabel[]): Promise<any[]> {
-    const calls = [];
-    shapeWithLabels.forEach((relay) => {
-      const pairs = toPairs(relay);
-      pairs.forEach(([key, value]) => {
-        if (typeof value !== 'string') {
-          calls.push(value as ContractCall);
+
+  async callObj<T extends ShapeWithLabel[]>(...shapeWithLabels: T): Promise<CallObjResult<T>> {
+    const calls: ContractCall<unknown>[] = [];
+    for (const shapeWithLabel of shapeWithLabels) {
+      for (const key in shapeWithLabel) {
+        if (Object.prototype.hasOwnProperty.call(shapeWithLabel, key)) {
+          if (typeof shapeWithLabel[key] !== 'string') {
+            calls.push(shapeWithLabel[key] as ContractCall<unknown>);
+          }
         }
-      });
-    });
-    const res = await this.multiCallInstance.all(calls);
+      }
+    }
+    const callResult = await this.multicallExecute(calls);
     let index = 0;
-
-    const data = shapeWithLabels.map((relay) => {
-      const pairs = toPairs(relay);
-      pairs.forEach((obj) => {
-        if (typeof obj[1] !== 'string') {
-          obj[1] = res[index];
-          index++;
+    const result: CallObjResult<T>[number][] = []
+    for (const shapeWithLabel of shapeWithLabels) {
+      const resultItem: Partial<CallObjResult<T>[number][keyof T[number]]> = {};
+      for (const key in shapeWithLabel) {
+        if (Object.prototype.hasOwnProperty.call(shapeWithLabel, key)) {
+          const value = shapeWithLabel[key];
+          if (typeof value === 'string') {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            resultItem[key] = value;
+          } else {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            resultItem[key] = callResult[index];
+            index++;
+          }
         }
-      });
-      return fromPairs(pairs) as any;
-    });
-    return data;
+      }
+      result.push( resultItem as CallObjResult<T>[number]);
+    }
+    return result as unknown as CallObjResult<T>;
+  }
+
+  multicall_getCurrentBlockTimestamp() :ContractCall<string>{
+    return this.mulContract.getCurrentBlockTimestamp()
+  }
+
+  multicall_getBlockNumber() :ContractCall<string>{
+    return this.mulContract.getBlockNumber()
+  }
+
+  multicall_getEthBalance(user: string) :ContractCall<string>{
+    return this.mulContract.getEthBalance(user)
   }
 }

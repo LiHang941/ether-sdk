@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-cd src/abi/;
-for dir in `ls -d *.sol`; do
+workdir=$(cd $(dirname $0); pwd)
+cd $workdir
+base_dir="$workdir/src/abi/"
+echo $base_dir
+cd $base_dir;
+
+for dir in $(find $base_dir -type d -name "*.sol"); do
     cd $dir
     for file in `ls`; do
       echo "$file"
@@ -9,6 +14,8 @@ for dir in `ls -d *.sol`; do
       mv "$file.bak" ../$file
       rm -rf "$file.bak"
     done
-    cd ..
+    cd $base_dir
     rm -rf $dir
 done
+
+find $base_dir -type f -name "*.dbg.json" -delete

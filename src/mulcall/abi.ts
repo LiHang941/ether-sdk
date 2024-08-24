@@ -1,8 +1,7 @@
-import {AbiCoder, ParamType} from '@ethersproject/abi';
-import {BytesLike} from '@ethersproject/bytes';
-import {keccak256} from '@ethersproject/keccak256';
-import {toUtf8Bytes} from '@ethersproject/strings';
-import {Trace} from "../service";
+import type {BytesLike, ParamType} from 'ethers6'
+import {AbiCoder, ethers, keccak256, toUtf8Bytes} from 'ethers6'
+import {isNullOrUndefined, Trace} from '../service'
+
 
 export class Abi {
   public static encode(name: string, inputs: ParamType[], params: any[]) {
@@ -20,19 +19,26 @@ export class Abi {
       throw e
     }
   }
+
   public static decode(outputs: ReadonlyArray<string | ParamType>, data: BytesLike) {
     try {
-      const abiCoder = new AbiCoder()
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       let params = abiCoder.decode(outputs, data)
       const newParams: any[] = []
       for (let i = 0; i < outputs.length; i++) {
         newParams[i] = params[i]
         const output = outputs[i]
-        if (typeof output !== 'string' && output.name !== '')
-          (newParams as any)[output.name] = params[i]
+        if (typeof output !== 'string'){
+          (newParams as any)[i] = decodeResult(output, params[i])
+          if (output.name !== ''){
+            (newParams as any)[output.name] =   (newParams as any)[i]
+          }
+        }
+
       }
-      params = outputs.length === 1 ? params[0] : newParams
+      params = outputs.length === 1 ? newParams[0] : newParams
       params = dataToString(params)
+
       return params
     } catch (e) {
       Trace.error('Abi decode error', outputs, data, e)
@@ -40,8 +46,81 @@ export class Abi {
     }
   }
 }
+
+// function decodeResult(param: ParamType,datas:any): any {
+//   const paramTypeBytes = new RegExp(/^bytes([0-9]*)$/);
+//   const paramTypeNumber = new RegExp(/^(u?int)([0-9]*)$/);
+//
+//   if (param.isArray()) {
+//     return decodeResult(param.arrayChildren, datas);
+//   }
+//
+//   if (param.isTuple()) {
+//     return param.components.map((it,index)=>{
+//       let result = {}
+//       result[it.name] = decodeResult(it, datas[it.name])
+//       return result
+//     })
+//   }
+//
+//   switch (param.baseType) {
+//     case "address":
+//       return dataToString(datas)
+//     case "bool":
+//       return dataToString(datas)
+//     case "string":
+//       return dataToString(datas)
+//     case "bytes":
+//       return dataToString(datas)
+//     case "":
+//       return dataToString(undefined)
+//   }
+//
+//   // u?int[0-9]*
+//   let match = param.type.match(paramTypeNumber);
+//   if (match) {
+//     return dataToString(datas)
+//   }
+//
+//   // bytes[0-9]+
+//   match = param.type.match(paramTypeBytes);
+//   if (match) {
+//     return dataToString(datas)
+//   }
+//   throw new Error("invalid type")
+// }
+
+
+
+const decodeResult = (paramType: ParamType, params: any) => {
+  if (paramType.type === 'tuple') {
+    if (paramType.components) {
+      const result: any = {}
+      for (const key in paramType.components) {
+        if (Object.prototype.hasOwnProperty.call(paramType.components, key)){
+          result[paramType.components[key].name] = decodeResult(paramType.components[key], params[key])
+          result[key] = decodeResult(paramType.components[key], params[key])
+        }
+      }
+      return result
+    }
+  }
+  if (paramType.type === 'tuple[]') {
+    if (paramType.arrayChildren) {
+      const result: any[] = []
+      for (const key in params) {
+        if (Object.prototype.hasOwnProperty.call(params, key)){
+          result[key] = decodeResult(paramType.arrayChildren, params[key])
+        }
+      }
+      return result
+    }
+  }
+  return params
+}
+
 const dataToString = (data: any) => {
-  if (Array.isArray(data)) {
+  if (Array.isArray(data) || typeof data === 'object') {
     const result: any[] = []
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key))
@@ -51,13 +130,17 @@ const dataToString = (data: any) => {
   } else {
     if (isNullOrUndefined(data))
       data = undefined
-    else
-      data = data.toString()
+    if (typeof data === "boolean"){
+      return data
+    }
+    if (typeof data === "bigint"){
+      return data.toString()
+    }
+    if (typeof data === "number"){
+      return data.toString()
+    }
   }
   return data
-}
-export function isNullOrUndefined(value: any) {
-  return value === undefined || value === null
 }
 
 function getFunctionSignature(name: string, inputs: ParamType[]): any {

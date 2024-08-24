@@ -1,15 +1,10 @@
 /**
  * ABI
  */
-import IERC20Abi from './IERC20.json';
-import Multicall2Abi from './Multicall2.json';
-import { JsonFragment } from '@ethersproject/abi';
-
-const IERC20 = IERC20Abi as JsonFragment[];
-const Multicall2 = Multicall2Abi as JsonFragment[];
+import type { JsonFragment } from 'ethers6'
+import IERC20AbiJSON from './IERC20.json'
+import Multicall2AbiJSON from './Multicall2.json'
 
 
-export {
-  IERC20,
-  Multicall2,
-};
+export const IERC20Abi = IERC20AbiJSON as JsonFragment[]
+export const Multicall2Abi = Multicall2AbiJSON as JsonFragment[]

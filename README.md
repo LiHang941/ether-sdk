@@ -1,14 +1,11 @@
-# LiHang941/ether-sdk
+# charmander-sdk
 
-# 引入方式
+## 引入方式
 
-## NPM/Yarn 引入方式
+> **Tags · ether-sdk**:
+> [Tags](https://github.com/temp-page/gby-sdk/tags)
 
-[Tags · ether-sdk](https://github.com/LiHang941/ether-sdk/tags)
-
+```bash
+  yarn add  git+https://git@github.com/temp-page/gby-sdk##<commmit id>
+  yarn add  git+https://git@github.com/temp-page/gby-sdk.git#<tag>
 ```
-yarn add  git+ssh://git@github.com:LiHang941/ether-sdk.git#<commmit id>
-
-yarn add  git+ssh://git@github.com:LiHang941/ether-sdk.git#<tag>
-```
-

@@ -4,10 +4,9 @@
  * @constructor
  */
 export function CacheKey(key: string) {
-  // tslint:disable-next-line:only-arrow-functions
-  return function (target) {
-    target.CACHE_KEY = key;
-  };
+  return function (target: any) {
+    target.CACHE_KEY = key
+  }
 }
 
 /**
@@ -16,10 +15,9 @@ export function CacheKey(key: string) {
  * @constructor
  */
 export function EnableProxy() {
-  // tslint:disable-next-line:only-arrow-functions
-  return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-    target[propertyKey].proxyEnable = true;
-  };
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    target[propertyKey].proxyEnable = true
+  }
 }
 
 /**
@@ -28,12 +26,10 @@ export function EnableProxy() {
  * @constructor
  */
 export function EnableLogs() {
-  // tslint:disable-next-line:only-arrow-functions
-  return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-    target[propertyKey].logEnable = true;
-  };
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    target[propertyKey].logEnable = true
+  }
 }
-
 
 /**
  * 方法缓存
@@ -41,11 +37,10 @@ export function EnableLogs() {
  * @param ttl milliseconds
  * @constructor
  */
-export function MethodCache(key:string,ttl: number) {
-  // tslint:disable-next-line:only-arrow-functions
-  return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-    target[propertyKey].methodCache = true;
-    target[propertyKey].methodCacheKey = key;
-    target[propertyKey].methodCacheTTL = ttl;
-  };
+export function MethodCache(key: string, ttl: number) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    target[propertyKey].methodCache = true
+    target[propertyKey].methodCacheKey = key
+    target[propertyKey].methodCacheTTL = ttl
+  }
 }

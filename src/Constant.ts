@@ -1,19 +1,16 @@
-import { AddressInfo,  Trace } from './service';
-import { BasicException } from './BasicException';
+import {AddressInfo, clearCache} from './service'
+import { BasicException } from './BasicException'
 
+let currentAddressInfo: AddressInfo | undefined
 
-
-let currentAddressInfo = null;
-
-export function updateCurrentAddressInfo(addressInfo:AddressInfo):void {
+export function updateCurrentAddressInfo(addressInfo: AddressInfo): void {
   currentAddressInfo = addressInfo
-  Trace.print('updateCurrentAddressInfo', currentAddressInfo)
+  clearCache()
 }
 
-
 export function getCurrentAddressInfo(): AddressInfo {
-  if (currentAddressInfo === null) {
-    throw new BasicException('not initialized');
-  }
-  return currentAddressInfo;
+  if (currentAddressInfo === undefined)
+    throw new BasicException('not initialized')
+
+  return currentAddressInfo
 }
