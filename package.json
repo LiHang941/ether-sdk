@@ -20,9 +20,9 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && webpack",
+    "build": "tsc -p tsconfig.cjs.json && webpack",
     "build:umd": "webpack",
-    "trybuild": "yarn clean && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && webpack && yarn clean",
+    "trybuild": "yarn clean && tsc -p tsconfig.cjs.json && webpack && yarn clean",
     "clean": "rimraf dist dist.esm dist.umd",
     "lint": "eslint . --fix",
     "prepublishOnly": "nr build",

@@ -3,10 +3,10 @@ const path = require('path')
 module.exports = {
   mode: 'production',
   entry: {
-    index: path.resolve(__dirname, 'dist', 'index.js'),
+    index: path.resolve(__dirname, 'lib', 'index.js'),
   },
   output: {
-    path: path.resolve(__dirname, 'dist.umd'),
+    path: path.resolve(__dirname, 'lib.umd'),
     filename: '[name].min.js',
     libraryTarget: 'umd',
     library: 'jssdk',
