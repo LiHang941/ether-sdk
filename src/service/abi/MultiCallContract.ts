@@ -66,6 +66,12 @@ export class MultiCallContract extends BaseAbi {
     return result as unknown as CallObjResult<T>;
   }
 
+  async singleCallObj<T>(call: ContractCall<T>): Promise<T> {
+    const res = await this.multicallExecute([call])
+    return res[0]
+  }
+
+
   multicall_getCurrentBlockTimestamp() :ContractCall<string>{
     return this.mulContract.getCurrentBlockTimestamp()
   }
