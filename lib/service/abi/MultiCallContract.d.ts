@@ -12,6 +12,7 @@ export declare class MultiCallContract extends BaseAbi {
     constructor(connectInfo: ConnectInfo);
     multicallExecute<T>(calls: ContractCall<T>[]): Promise<T[]>;
     callObj<T extends ShapeWithLabel[]>(...shapeWithLabels: T): Promise<CallObjResult<T>>;
+    singleCallObj<T>(call: ContractCall<T>): Promise<T>;
     multicall_getCurrentBlockTimestamp(): ContractCall<string>;
     multicall_getBlockNumber(): ContractCall<string>;
     multicall_getEthBalance(user: string): ContractCall<string>;
