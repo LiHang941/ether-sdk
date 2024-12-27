@@ -9,5 +9,6 @@ export * from './WalletConnect'
 export * from './config/index'
 export * from './SdkProvider'
 export * from './wallet/index'
+export * from './mulcall'
 
 export {BigNumber}
