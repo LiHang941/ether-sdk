@@ -5,6 +5,7 @@ import {ConnectInfo} from '../../ConnectInfo'
 export enum ChainType {
   bsc = 'bsc',
   matic = 'matic',
+  arbitrum = 'arbitrum',
 }
 
 export const ChainTypeList = Object.values(ChainType)

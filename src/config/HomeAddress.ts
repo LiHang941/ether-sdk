@@ -1,7 +1,4 @@
-import {updateCurrentAddressInfo} from '../Constant'
-import {ConnectManager} from '../WalletConnect'
-import {AddressInfo, ChainInfo, ChainType, Trace} from '../service'
-import addressConfig from './address.json'
+import { Trace} from '../service'
 
 let initAddressFun = (ENV: 'test' | 'prod'):void => {
   if (ENV === 'test') {
