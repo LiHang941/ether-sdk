@@ -1,7 +1,8 @@
 import { ConnectInfo } from '../../ConnectInfo';
 export declare enum ChainType {
     bsc = "bsc",
-    matic = "matic"
+    matic = "matic",
+    arbitrum = "arbitrum"
 }
 export declare const ChainTypeList: ChainType[];
 export interface ChainInfo {
